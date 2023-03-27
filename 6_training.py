@@ -24,10 +24,10 @@ class CatDogDataset(Dataset):
         self.train_dir = train_dir
         self.transform = transform
         self.images = img_list
-        
+
     def __len__(self):
         return len(self.images)
-    
+
     def __getitem__(self, index):
         image_path = os.path.join(self.train_dir, self.images[index])
         label = self.images[index].split(".")[0]
@@ -82,7 +82,7 @@ class scratch_nn(nn.Module):
         self.linear2 = nn.Linear(1024,512)
         self.linear3 = nn.Linear(512,2)
         self.classifier = nn.Softmax(dim=1)
-        
+
     def forward(self,x):
         x = self.mpool( self.relu(self.conv1(x)) )
         x = self.mpool( self.relu(self.conv2(x)) )
@@ -122,7 +122,7 @@ def train_step(train_loader, model, optimizer, criterion, device):
         # store
         predictions.append(yhat)
         actuals.append(actual)
-    
+
     predictions, actuals = vstack(predictions), vstack(actuals)
     # calculate accuracy
     acc = accuracy_score(actuals, predictions)
