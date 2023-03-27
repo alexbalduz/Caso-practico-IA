@@ -20,15 +20,15 @@ import matplotlib.pyplot as plt
 
 ## Step 1: Create a dataloader for Pytorch
 class CatDogDataset(Dataset):
-    def _init_(self, train_dir, img_list, transform = None):
+    def __init__(self, train_dir, img_list, transform = None):
         self.train_dir = train_dir
         self.transform = transform
         self.images = img_list
-
-    def _len_(self):
+        
+    def __len__(self):
         return len(self.images)
-
-    def _getitem_(self, index):
+    
+    def __getitem__(self, index):
         image_path = os.path.join(self.train_dir, self.images[index])
         label = self.images[index].split(".")[0]
         label = 0 if label == 'cat' else 1
@@ -61,7 +61,7 @@ train_dataloader = DataLoader(train_dataset, batch_size = 64, shuffle=True)
 val_dataloader = DataLoader(val_dataset, batch_size = 64, shuffle=False)
 
 # Visualize images in the dataset
-samples, labels = next(iter(train_dataloader)) #error .next
+samples, labels = next(iter(train_dataloader))
 plt.figure(figsize=(16,32))
 grid_imgs = torchvision.utils.make_grid(samples[:32])
 np_grid_imgs = grid_imgs.numpy()
@@ -71,8 +71,8 @@ plt.show()
 
 ## Step 3: Define Deep Learning model
 class scratch_nn(nn.Module):
-    def _init_(self):
-        super()._init_()
+    def __init__(self):
+        super().__init__()
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=100, kernel_size=5, stride=1, padding=0)
         self.conv2 = nn.Conv2d(100, 200, 3, stride=1, padding=0)
         self.conv3 = nn.Conv2d(200, 400, 3, stride=1, padding=0)
@@ -82,7 +82,7 @@ class scratch_nn(nn.Module):
         self.linear2 = nn.Linear(1024,512)
         self.linear3 = nn.Linear(512,2)
         self.classifier = nn.Softmax(dim=1)
-
+        
     def forward(self,x):
         x = self.mpool( self.relu(self.conv1(x)) )
         x = self.mpool( self.relu(self.conv2(x)) )
@@ -122,7 +122,7 @@ def train_step(train_loader, model, optimizer, criterion, device):
         # store
         predictions.append(yhat)
         actuals.append(actual)
-
+    
     predictions, actuals = vstack(predictions), vstack(actuals)
     # calculate accuracy
     acc = accuracy_score(actuals, predictions)
@@ -157,7 +157,7 @@ def evaluation_step(val_loader, model, criterion, device):
 
 ## Step 5: Define main train function
 def train(model, train_dataloader, val_dataloader, optimizer, criterion, device):
-    num_epoch = 5#300
+    num_epoch = 5
     train_loss_list, train_acc_list, val_loss_list, val_acc_list = [], [], [], []
     for epoch in range(1, num_epoch + 1):
         train_loss, train_acc = train_step(train_dataloader, model, optimizer, criterion, device)
@@ -181,6 +181,7 @@ weight_dec = 0.001
 model_file_name = "dogs_cats_model.pth"
 optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_dec)
 criterion = nn.CrossEntropyLoss()
+print("Empieza entrenamiento")
 model, train_loss, train_acc, val_loss, val_acc = train(model, train_dataloader, val_dataloader, optimizer, criterion, device)
 
 # Step 7: Show results
